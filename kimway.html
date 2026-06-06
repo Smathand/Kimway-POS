@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kimwai Shop POS System</title>
+
+    <style>
+
+        body{
+            font-family:Arial;
+            background:#111;
+            color:white;
+            margin:0;
+            padding:0;
+        }
+
+        .loginPage,
+        .appPage{
+            max-width:900px;
+            margin:auto;
+            padding:20px;
+        }
+
+        .hidden{
+            display:none;
+        }
+
+        .login-box{
+            background:#222;
+            padding:20px;
+            border-radius:15px;
+            margin-top:80px;
+            text-align:center;
+        }
+
+        .profile-img{
+            width:120px;
+            height:120px;
+            border-radius:50%;
+            object-fit:cover;
+            border:4px solid #00b4ff;
+            margin-bottom:10px;
+        }
+
+        input{
+            padding:12px;
+            margin:5px;
+            border:none;
+            border-radius:10px;
+        }
+
+        button{
+            padding:12px;
+            margin:5px;
+            border:none;
+            border-radius:10px;
+            cursor:pointer;
+            background:#0077b6;
+            color:white;
+            transition:0.2s;
+        }
+
+        button:active{
+            background:yellow !important;
+            color:black !important;
+            transform:scale(0.95);
+        }
+
+        .login-row{
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            gap:10px;
+            flex-wrap:wrap;
+        }
+
+        .box{
+            background:#222;
+            padding:15px;
+            border-radius:15px;
+            margin-top:15px;
+        }
+
+        .topbar{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            background:#222;
+            padding:15px;
+            border-radius:15px;
+        }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+            margin-top:10px;
+        }
+
+        th, td{
+            border:1px solid #444;
+            padding:10px;
+            text-align:center;
+        }
+
+        th{
+            background:#333;
+        }
+
+        .search-bar{
+            display:flex;
+            flex-wrap:wrap;
+            gap:10px;
+            margin-top:10px;
+        }
+
+        #total{
+            color:lime;
+            font-size:20px;
+            font-weight:bold;
+        }
+
+        .popup{
+            position:fixed;
+            top:0;
+            left:0;
+            width:100%;
+            height:100%;
+            background:rgba(0,0,0,0.7);
+            display:none;
+            justify-content:center;
+            align-items:center;
+        }
+
+        .popup-box{
+            background:#222;
+            padding:20px;
+            border-radius:15px;
+            width:300px;
+        }
+
+        .error{
+            color: rgba(205, 95, 55);;
+        }
+
+        input[type="file"]{
+            display:none;
+        }
+
+        .upload-label{
+            color:cyan;
+            cursor:pointer;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<!-- LOGIN PAGE -->
+<div class="loginPage" id="loginPage">
+
+    <div class="login-box">
+
+        <img id="loginProfile" class="profile-img"
+        src="https://i.imgur.com/8Km9tLL.png">
+
+        <br>
+
+        <label class="upload-label">
+            Upload Profile Photo
+            <input type="file" id="photoInput">
+        </label>
+
+        <h2>Kimwai Shop Login</h2>
+
+        <div class="login-row">
+
+            <button onclick="login()">Login</button>
+
+            <input type="password"
+            id="password"
+            placeholder="Enter Password">
+
+            <button onclick="openPopup()"
+            style="background:#ff9800;">
+                Change Password
+            </button>
+
+        </div>
+
+        <p class="error" id="errorMsg"></p>
+
+    </div>
+
+</div>
+
+<!-- APP PAGE -->
+<div class="appPage hidden" id="appPage">
+
+    <div class="topbar">
+
+        <h2>Kimwai Shop POS</h2>
+
+        <button onclick="logout()">
+            Logout
+        </button>
+
+    </div>
+
+    <!-- PROFILE -->
+    <div class="box" style="text-align:center;">
+
+        <img id="dashProfile"
+        class="profile-img"
+        src="https://i.imgur.com/8Km9tLL.png">
+
+        <p><b>Logged In Cashier</b></p>
+
+    </div>
+
+    <!-- ADD PRODUCT -->
+    <div class="box">
+
+        <h3>Add Product</h3>
+
+        <input type="text"
+        id="productName"
+        placeholder="Product Name">
+
+        <input type="number"
+        id="productPrice"
+        placeholder="Price">
+
+        <button onclick="addProduct()">
+            Add Product
+        </button>
+
+    </div>
+
+    <!-- PRODUCTS -->
+    <div class="box">
+
+        <h3>Products</h3>
+
+        <div id="productList"></div>
+
+    </div>
+
+    <!-- SALES -->
+    <div class="box">
+
+        <h3>Sales</h3>
+
+        <button onclick="sendReport()">
+            Send WhatsApp Report
+        </button>
+
+        <button onclick="clearSales()"
+        style="background:rgba(205, 95, 55);;">
+            Clear Sales
+        </button>
+
+        <div class="search-bar">
+
+            <input type="date" id="searchDate">
+
+            <button onclick="filterSales()">
+                Search Date
+            </button>
+
+            <button onclick="showAllSales()">
+                Show All
+            </button>
+
+        </div>
+
+        <p>
+            Total:
+            <span id="total">0</span>
+            TZS
+        </p>
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Delete</th>
+                </tr>
+
+            </thead>
+
+            <tbody id="salesTable"></tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+<!-- PASSWORD POPUP -->
+<div class="popup" id="popup">
+
+    <div class="popup-box">
+
+        <h3>Change Password</h3>
+
+        <input type="password"
+        id="oldPass"
+        placeholder="Old Password">
+
+        <input type="password"
+        id="newPass"
+        placeholder="New Password">
+
+        <br>
+
+        <button onclick="changePassword()">
+            Update
+        </button>
+
+        <button onclick="closePopup()">
+            Close
+        </button>
+
+        <p id="passMsg"></p>
+
+    </div>
+
+</div>
+
+<script>
+
+// ================= RESET PASSWORD =================
+localStorage.setItem("password", "Noel");
+
+// ================= DATA =================
+let products =
+JSON.parse(localStorage.getItem("products")) || [];
+
+let sales =
+JSON.parse(localStorage.getItem("sales")) || [];
+
+let systemPassword =
+localStorage.getItem("password") || "Noel";
+
+let boss1 = "255670601120";
+let boss2 = "255712345678";
+
+let filteredSales = null;
+
+// ================= PROFILE =================
+let savedPhoto =
+localStorage.getItem("profilePhoto") ||
+"https://i.imgur.com/8Km9tLL.png";
+
+function updatePhoto(photo){
+
+    document.getElementById("loginProfile").src = photo;
+    document.getElementById("dashProfile").src = photo;
+
+}
+
+updatePhoto(savedPhoto);
+
+document.getElementById("photoInput")
+.addEventListener("change", function(e){
+
+    let file = e.target.files[0];
+
+    let reader = new FileReader();
+
+    reader.onload = function(ev){
+
+        savedPhoto = ev.target.result;
+
+        localStorage.setItem(
+            "profilePhoto",
+            savedPhoto
+        );
+
+        updatePhoto(savedPhoto);
+
+    };
+
+    reader.readAsDataURL(file);
+
+});
+
+// ================= LOGIN =================
+function login(){
+
+    let pass =
+    document.getElementById("password").value;
+
+    if(pass === systemPassword){
+
+        document.getElementById("loginPage")
+        .classList.add("hidden");
+
+        document.getElementById("appPage")
+        .classList.remove("hidden");
+
+        renderProducts();
+        renderSales();
+
+    }else{
+
+        document.getElementById("errorMsg")
+        .innerText = "Wrong Password!";
+
+    }
+
+}
+
+// ================= LOGOUT =================
+function logout(){
+
+    document.getElementById("appPage")
+    .classList.add("hidden");
+
+    document.getElementById("loginPage")
+    .classList.remove("hidden");
+
+}
+
+// ================= PRODUCTS =================
+function addProduct(){
+
+    let name =
+    document.getElementById("productName").value;
+
+    let price =
+    parseFloat(
+        document.getElementById("productPrice").value
+    );
+
+    if(!name || isNaN(price)) return;
+
+    products.push({
+        name:name,
+        price:price
+    });
+
+    localStorage.setItem(
+        "products",
+        JSON.stringify(products)
+    );
+
+    renderProducts();
+
+}
+
+function renderProducts(){
+
+    let html = "";
+
+    products.forEach((p,i)=>{
+
+        html += `
+        <div style="margin-top:10px;">
+
+            ${p.name} - ${p.price} TZS
+
+            <button onclick="sell(${i})">
+                Sell
+            </button>
+
+        </div>
+        `;
+
+    });
+
+    document.getElementById("productList")
+    .innerHTML = html;
+
+}
+
+// ================= SELL =================
+function sell(i){
+
+    let item = products[i];
+
+    let now = new Date();
+
+    sales.push({
+
+        name:item.name,
+        price:item.price,
+        date:now.toISOString().split("T")[0],
+        time:now.toLocaleTimeString()
+
+    });
+
+    localStorage.setItem(
+        "sales",
+        JSON.stringify(sales)
+    );
+
+    renderSales();
+
+}
+
+// ================= DELETE SALE =================
+function deleteSale(index){
+
+    if(confirm("Delete this sale?")){
+
+        sales.splice(index,1);
+
+        localStorage.setItem(
+            "sales",
+            JSON.stringify(sales)
+        );
+
+        renderSales();
+
+    }
+
+}
+
+// ================= CLEAR SALES =================
+function clearSales(){
+
+    if(confirm("Clear all sales?")){
+
+        sales = [];
+
+        localStorage.setItem(
+            "sales",
+            JSON.stringify(sales)
+        );
+
+        renderSales();
+
+    }
+
+}
+
+// ================= SALES =================
+function renderSales(){
+
+    let table =
+    document.getElementById("salesTable");
+
+    table.innerHTML = "";
+
+    let data = filteredSales || sales;
+
+    let grouped = {};
+
+    let total = 0;
+
+    data.forEach((s,index)=>{
+
+        if(!grouped[s.date]){
+            grouped[s.date] = [];
+        }
+
+        grouped[s.date].push({
+            ...s,
+            originalIndex:index
+        });
+
+    });
+
+    Object.keys(grouped)
+    .sort()
+    .reverse()
+    .forEach(date=>{
+
+        let dayTotal = 0;
+
+        table.innerHTML += `
+        <tr>
+
+            <td colspan="5"
+            style="
+            background:#0077b6;
+            font-weight:bold;
+            ">
+                📅 ${date}
+            </td>
+
+        </tr>
+        `;
+
+        grouped[date].forEach(s=>{
+
+            dayTotal += s.price;
+            total += s.price;
+
+            table.innerHTML += `
+            <tr>
+
+                <td>${s.name}</td>
+                <td>${s.price}</td>
+                <td>${s.date}</td>
+                <td>${s.time}</td>
+
+                <td>
+                    <button
+                    onclick="deleteSale(${s.originalIndex})"
+                    style="background:rgba(205, 95, 55);">
+                        Delete
+                    </button>
+                </td>
+
+            </tr>
+            `;
+
+        });
+
+        table.innerHTML += `
+        <tr>
+
+            <td colspan="5"
+            style="
+            background:#333;
+            color:#00ffcc;
+            font-weight:bold;
+            ">
+
+                💰 Daily Total:
+                ${dayTotal} TZS
+
+            </td>
+
+        </tr>
+        `;
+
+    });
+
+    document.getElementById("total")
+    .innerText = total;
+
+}
+
+// ================= FILTER =================
+function filterSales(){
+
+    let date =
+    document.getElementById("searchDate").value;
+
+    filteredSales =
+    sales.filter(s => s.date === date);
+
+    renderSales();
+
+}
+
+function showAllSales(){
+
+    filteredSales = null;
+
+    renderSales();
+
+}
+
+// ================= WHATSAPP REPORT =================
+function sendReport(){
+
+    let total = 0;
+
+    let list = "";
+
+    sales.forEach(s=>{
+
+        total += s.price;
+
+        list +=
+`\n• ${s.name}
+Price: ${s.price} TZS
+Date: ${s.date}
+Time: ${s.time}\n`;
+
+    });
+
+    let msg =
+`📊 KIMWAI SHOP REPORT
+
+${list}
+
+💰 TOTAL SALES:
+${total} TZS`;
+
+    let url1 =
+    "https://wa.me/" +
+    boss1 +
+    "?text=" +
+    encodeURIComponent(msg);
+
+    let url2 =
+    "https://wa.me/" +
+    boss2 +
+    "?text=" +
+    encodeURIComponent(msg);
+
+    window.open(url1,"_blank");
+
+    setTimeout(()=>{
+        window.open(url2,"_blank");
+    },1000);
+
+}
+
+// ================= PASSWORD =================
+function openPopup(){
+
+    document.getElementById("popup")
+    .style.display = "flex";
+
+}
+
+function closePopup(){
+
+    document.getElementById("popup")
+    .style.display = "none";
+
+}
+
+function changePassword(){
+
+    let oldPass =
+    document.getElementById("oldPass").value;
+
+    let newPass =
+    document.getElementById("newPass").value;
+
+    if(oldPass !== systemPassword){
+
+        document.getElementById("passMsg")
+        .innerText = "Wrong Old Password!";
+
+        return;
+
+    }
+
+    systemPassword = newPass;
+
+    localStorage.setItem(
+        "password",
+        newPass
+    );
+
+    document.getElementById("passMsg")
+    .innerText = "Password Updated!";
+
+}
+
+</script>
+
+</body>
+</html>
